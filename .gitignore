@@ -1,3 +1,6 @@
+# ignore .json files, every user should create their own credentials and name the files 'client_secret_gsheets.json' and 'client_secret_tba.json'
+*.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
