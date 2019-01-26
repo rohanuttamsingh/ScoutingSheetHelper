@@ -1,4 +1,5 @@
 import json
+from time import sleep
 
 import gspread
 import requests
@@ -80,35 +81,59 @@ class Spreadsheet:
             self.sheet.del_worksheet(self.sheet.worksheet(team))
 
     def get_sample_sheet(self):
-        """Returns the sample team sheet in list format"""
+        """Returns the sample team sheet in 2D list format [row][column]"""
         sample_sheet = []
-        for col in range(1, self.sample_team_worksheet.col_count + 1):
-            sample_sheet.append(self.sample_team_worksheet.col_values(col, value_render_option='FORMULA'))
+        for row in range(1, self.sample_team_worksheet.row_count + 1):
+            sample_sheet.append(self.sample_team_worksheet.row_values(row, value_render_option='FORMULA'))
         return sample_sheet
 
-    def copy_sheet(self, copy_from, copy_to):
+    def copy_sheet(self, copy_from, copy_to, team_num):
         """Copies every element from a list of values to a specified sheet
 
         copy_from: list from which values are copied
         copy_to: sheet to which values are copied
         """
-        for row in range(len(copy_from)):
-            for col in range(len(row)): # TODO: row being interpreted as an integer, not list of integers as intended
-                copy_to.update_cell(row, col, copy_from[row + 1][col + 1])
+        i, j = 1, 1
+        for row in copy_from:
+            for col in row:
+                if col == 'Team #':
+                    copy_to.update_cell(i, j, team_num)
+                    sleep(1.1)
+                elif col != '':
+                    copy_to.update_cell(i, j, col)
+                    sleep(1.1) # Quota is 100 requests per 100 s, this does 100 requests per 110 s
+                j += 1
+            i += 1
+            j = 1
 
     def copy_sample_to_team_sheets(self):
         """Copies sample sheet format to every team sheet"""
         for team in self.teams_worksheet.col_values(1):
-            self.copy_sheet(self.get_sample_sheet(), self.sheet.worksheet(team))
+            self.copy_sheet(self.get_sample_sheet(), self.sheet.worksheet(team), team)
 
+    def get_blue_schedule(self, event):
+        # event schedules get updated to elims event schedules once elims are reached
+        # only elims schedule accessible in finished events
+        blue_schedule = []
+        event_list = self.tba_session.get(self.BASE_URL + '/event/%s/matches/simple' % event).json() # list of dicts
+        for match in event_list:
+            blue_schedule.append(match['alliances']['blue'])
+        for quals_alliances in schedule:
+            for i in range(len(quals_alliances)):
+                quals_alliances[i] = quals_alliances[i][3:]
+                # Trims 'frc' from beginning of every team number
+        return blue_schedule
 
     def main(self):
         # self.fill_teams(self.teams_worksheet, self.event_key)
         # self.create_team_sheets()
         # self.delete_team_sheets()
         # print(self.get_sample_sheet())
-        # print(self.get_sample_sheet())
-        self.copy_sample_to_team_sheets()
+        # self.copy_sheet(self.get_sample_sheet(), self.sheet.worksheet('1137')) # testing on single sheet
+        # print(len(self.get_sample_sheet()))
+        # self.copy_sample_to_team_sheets()
+        print(self.get_blue_schedule(self.event_key))
+
 
 if __name__ == '__main__':
     spreadsheet = Spreadsheet()
