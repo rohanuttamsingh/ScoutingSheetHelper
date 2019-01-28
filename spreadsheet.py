@@ -25,6 +25,7 @@ class Spreadsheet:
     teams_worksheet = sheet.worksheet('Teams')
     sample_team_worksheet = sheet.worksheet('Sample Team')
     schedule_worksheet = sheet.worksheet('Schedule')
+    team_data_worksheet = sheet.worksheet('Team Data')
 
     # setting event key to value in A1 of Key worksheet
     event_key = key_worksheet.cell(1, 1).value
@@ -134,26 +135,52 @@ class Spreadsheet:
         return schedule
 
     def fill_schedule(self, event):
-        """Auto fills schedule worksheet with schedule
+        """Auto fills Schedule worksheet with schedule
         
         event: event key of intended competition (e.g. 2018vahay)
         """
         red_schedule = self.get_color_schedule(event, 'red')
         blue_schedule = self.get_color_schedule(event, 'blue')
-        
         # # updates num_matches to the correct number of matches and fill column 1 of spreadsheet with match number
         num_matches = 1
         for match in range(len(red_schedule)):
             self.schedule_worksheet.update_cell(match + 1, 1, match + 1)
             num_matches += 1
             sleep(1.01)
-
         for i in range(num_matches):
             for j in range(3):
                 self.schedule_worksheet.update_cell(i + 1, j + 2, red_schedule[i][j])
                 sleep(1.01)
                 self.schedule_worksheet.update_cell(i + 1, j + 5, blue_schedule[i][j])
                 sleep(1.01)
+
+    def get_team_metrics_from_event(self, event):
+        """Returns OPRs, DPRs, and CCWMs of all teams at event in dictionary of dictionaries
+
+        event: event key of intended competition (e.g. 2018vahay)
+        """
+        return self.tba_session.get(self.BASE_URL + '/event/%s/oprs' % event).json()
+    
+    def fill_team_data(self, event):
+        """Auto fills Team Data worksheet with teams and their corresponding OPR, DPR, and CCWM
+
+        event: event key if intended competition (e.g. 2018vahay)
+        """
+        teams = self.get_teams_from_event(event)
+        metrics = self.get_team_metrics_from_event(event)
+        row = 2
+        team_col, opr_col, dpr_col, ccwm_col = 1, 2, 3, 4
+        for team in teams:
+            self.team_data_worksheet.update_cell(row, team_col, team)
+            sleep(1.01)
+            self.team_data_worksheet.update_cell(row, opr_col, metrics['oprs']['frc' + team])
+            sleep(1.01)
+            self.team_data_worksheet.update_cell(row, dpr_col, metrics['dprs']['frc' + team])
+            sleep(1.01)
+            self.team_data_worksheet.update_cell(row, ccwm_col, metrics['ccwms']['frc' + team])
+            sleep(1.01)
+            row += 1
+
 
     def main(self):
         # self.fill_teams(self.teams_worksheet, self.event_key)
@@ -164,7 +191,10 @@ class Spreadsheet:
         # print(len(self.get_sample_sheet()))
         # self.copy_sample_to_team_sheets()
         # print(self.get_color_schedule(self.event_key, 'red'))
-        self.fill_schedule(self.event_key)
+        # self.fill_schedule(self.event_key)
+        # self.fill_team_data(self.event_key)
+        # print(self.get_team_metrics_from_event(self.event_key))
+        self.fill_team_data(self.event_key)
 
 
 if __name__ == '__main__':
