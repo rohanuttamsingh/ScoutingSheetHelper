@@ -134,32 +134,26 @@ class Spreadsheet:
         return schedule
 
     def fill_schedule(self, event):
-        blue_schedule = self.get_color_schedule(event, 'blue')
+        """Auto fills schedule worksheet with schedule
+        
+        event: event key of intended competition (e.g. 2018vahay)
+        """
         red_schedule = self.get_color_schedule(event, 'red')
+        blue_schedule = self.get_color_schedule(event, 'blue')
         
         # # updates num_matches to the correct number of matches and fill column 1 of spreadsheet with match number
         num_matches = 1
-        for match in range(len(blue_schedule)):
+        for match in range(len(red_schedule)):
             self.schedule_worksheet.update_cell(match + 1, 1, match + 1)
             num_matches += 1
             sleep(1.01)
 
-        # while not exit:
-        #     self.schedule_worksheet.update_cell(match, 1, match)
-        #     sleep(1.01)
-        #     for i in range(3):
-        #         if not blue_schedule[match][i]:
-        #             exit = True
-        #             break
-        #         self.schedule_worksheet.update_cell(match, i + 2, blue_schedule[match][i])
-        #         sleep(1.01)
-        #     for j in range(3):
-        #         if not red_schedule[match][i]:
-        #             exit = True
-        #             break
-        #         self.schedule_worksheet.update_cell(match, i + 5, red_schedule[match][i])
-        #         sleep(1.01)
-        #     match += 1
+        for i in range(num_matches):
+            for j in range(3):
+                self.schedule_worksheet.update_cell(i + 1, j + 2, red_schedule[i][j])
+                sleep(1.01)
+                self.schedule_worksheet.update_cell(i + 1, j + 5, blue_schedule[i][j])
+                sleep(1.01)
 
     def main(self):
         # self.fill_teams(self.teams_worksheet, self.event_key)
