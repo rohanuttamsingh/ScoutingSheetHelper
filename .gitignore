@@ -1,7 +1,7 @@
-# Ignore .json files, every user should create their own credentials and name the files 'client_secret_gsheets.json' and 'client_secret_tba.json'
+# .json files, every user should create their own credentials and name the files 'client_secret_gsheets.json' and 'client_secret_tba.json'
 *.json
 
-# Ignore virtual environment
+# Virtual environment
 /venv/*
 
 # Byte-compiled / optimized / DLL files
