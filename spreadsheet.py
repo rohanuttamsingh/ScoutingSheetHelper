@@ -9,16 +9,16 @@ from oauth2client.service_account import ServiceAccountCredentials
 class Spreadsheet:
 
     # comment out one of these depending on which spreadsheet being used
-    url = 'https://docs.google.com/spreadsheets/d/1WhExw_ReHnyPQYXl0p-kT6jYXpZW5w8-cq2ffK7niOs' # 'Deep Space Scouting Machine'
-    # url = 'https://docs.google.com/spreadsheets/d/1lOTML4TgNqv5OKUJU32keWu62__T9cFT3IL52kmPbKk' # 'Bethesda Week 2 Scouting Machine' 
+    URL = 'https://docs.google.com/spreadsheets/d/1WhExw_ReHnyPQYXl0p-kT6jYXpZW5w8-cq2ffK7niOs' # 'Deep Space Scouting Machine'
+    # URL = 'https://docs.google.om/spreadsheets/d/1lOTML4TgNqv5OKUJU32keWu62__T9cFT3IL52kmPbKk' # 'Bethesda Week 2 Scouting Machine' 
     
-    # google sheets credentials setup
+    # google sheets  setup
     scope = ['https://spreadsheets.google.com/feeds']
     creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret_gsheets.json', scope)
     client = gspread.authorize(creds)
 
     # google sheets document
-    sheet = client.open_by_url(url)
+    sheet = client.open_by_url(URL)
     
     # individual worksheets of google sheets document
     key_worksheet = sheet.worksheet('Key')
@@ -181,6 +181,9 @@ class Spreadsheet:
             sleep(1.01)
             row += 1
 
+    def get_predictions_from_event(self, event):
+        return self.tba_session.get(self.BASE_URL + '/event/%s/predictions' % event).json()
+
 
     def main(self):
         # self.fill_teams(self.teams_worksheet, self.event_key)
@@ -194,7 +197,8 @@ class Spreadsheet:
         # self.fill_schedule(self.event_key)
         # self.fill_team_data(self.event_key)
         # print(self.get_team_metrics_from_event(self.event_key))
-        self.fill_team_data(self.event_key)
+        # self.fill_team_data(self.event_key)
+        print(self.get_predictions_from_event(self.event_key))
 
 
 if __name__ == '__main__':
