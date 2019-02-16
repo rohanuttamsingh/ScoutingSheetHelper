@@ -3,15 +3,19 @@ from time import sleep
 
 import gspread
 import requests
+from gspread_formatting import *
 from oauth2client.service_account import ServiceAccountCredentials
 
 
 class Spreadsheet:
 
-    # comment out one of these depending on which spreadsheet being used
-    URL = 'https://docs.google.com/spreadsheets/d/1WhExw_ReHnyPQYXl0p-kT6jYXpZW5w8-cq2ffK7niOs' # 'Deep Space Scouting Machine'
-    # URL = 'https://docs.google.om/spreadsheets/d/1lOTML4TgNqv5OKUJU32keWu62__T9cFT3IL52kmPbKk' # 'Bethesda Week 2 Scouting Machine' 
-    
+    # comment out all but one of these depending on which spreadsheet being used
+    # URL = 'https://docs.google.com/spreadsheets/d/1WhExw_ReHnyPQYXl0p-kT6jYXpZW5w8-cq2ffK7niOs' # 'Deep Space Scouting Sheet Machine'
+    # URL = 'https://docs.google.om/spreadsheets/d/1lOTML4TgNqv5OKUJU32keWu62__T9cFT3IL52kmPbKk' # 'Bethesda Week 2 Scouting Sheet Machine' 
+    # URL = 'https://docs.google.com/spreadsheets/d/1C8hjCqMZmacyUe3SlRgW4o4HGqTRFozviK4WZ6Mu4yc' # 'Week 0 Scouting Sheet Machine'
+    # URL = 'https://docs.google.com/spreadsheets/d/1uYb9n_2IaGSRvOPZcuE59eUQjinaTSIN1SKqTQ6z2lQ' # 'Dickinson Center Week 0 Scouting Sheet Machine'
+    URL = 'https://docs.google.com/spreadsheets/d/1_8tFjgxjGVA0__1BLkMV-ookfPLrnGDE8gZj6pQc1_k' # 'Centurion-KnightKrawler Week 0 Scouting Sheet Machine'
+
     # google sheets  setup
     scope = ['https://spreadsheets.google.com/feeds']
     creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret_gsheets.json', scope)
@@ -29,6 +33,9 @@ class Spreadsheet:
 
     # setting event key to value in A1 of Key worksheet
     event_key = key_worksheet.cell(1, 1).value
+
+    # 2537 cell format
+    format_2537 = CellFormat(backgroundColor=Color(.148, .98, .216)) # 25fa37 converted to rgb out of 1
 
     # tba setup
     tba_session = requests.Session()
@@ -103,18 +110,19 @@ class Spreadsheet:
             for col in row:
                 if col == 'Team #':
                     copy_to.update_cell(i, j, team_num)
-                    sleep(1.1)
+                    sleep(1.01)
                 elif col != '':
                     copy_to.update_cell(i, j, col)
-                    sleep(1.01) # Quota is 100 requests per 100 s, this does 100 requests per 101 s
+                    sleep(1.01) # Quota is 100 requests per 100s, this does 100 requests per 101s
                 j += 1
             i += 1
             j = 1
 
     def copy_sample_to_team_sheets(self):
         """Copies sample sheet format to every team sheet"""
+        sample_sheet = self.get_sample_sheet()
         for team in self.teams_worksheet.col_values(1):
-            self.copy_sheet(self.get_sample_sheet(), self.sheet.worksheet(team), team)
+            self.copy_sheet(sample_sheet, self.sheet.worksheet(team), team)
 
     def get_color_schedule(self, event, color):
         """Returns match schedule of specified color alliance in list
@@ -141,7 +149,7 @@ class Spreadsheet:
         """
         red_schedule = self.get_color_schedule(event, 'red')
         blue_schedule = self.get_color_schedule(event, 'blue')
-        # # updates num_matches to the correct number of matches and fill column 1 of spreadsheet with match number
+        # updates num_matches to the correct number of matches and fill column 1 of spreadsheet with match number
         num_matches = 1
         for match in range(len(red_schedule)):
             self.schedule_worksheet.update_cell(match + 1, 1, match + 1)
@@ -184,21 +192,33 @@ class Spreadsheet:
     def get_predictions_from_event(self, event):
         return self.tba_session.get(self.BASE_URL + '/event/%s/predictions' % event).json()
 
+    def format_cells_in_schedule(self):
+        cells_2537_raw = self.schedule_worksheet.findall('2537')
+        cells_2537 = []
+        for cell in cells_2537_raw:
+            cells_2537.append([cell.col + 64, cell.row]) # add 64 to column to match ascii character decimals
+        for cell in cells_2537:
+            b = bytes(str(cell[0]), 'utf8')
+            ascii_char = b.decode('ascii')
+            cell[0] = chr(int(ascii_char))
+        for i in range(len(cells_2537)):
+            format_cell_range(self.schedule_worksheet, '%s%i:%s%i' % (cells_2537[i][0], cells_2537[i][1], cells_2537[i][0], cells_2537[i][1]), self.format_2537)
+
 
     def main(self):
         # self.fill_teams(self.teams_worksheet, self.event_key)
         # self.create_team_sheets()
         # self.delete_team_sheets()
         # print(self.get_sample_sheet())
-        # self.copy_sheet(self.get_sample_sheet(), self.sheet.worksheet('1111'), 1111) # testing on single sheet
+        # self.copy_sheet(self.get_sample_sheet(), self.sheet.worksheet('1153'), 1153) # testing on single sheet
         # print(len(self.get_sample_sheet()))
         # self.copy_sample_to_team_sheets()
         # print(self.get_color_schedule(self.event_key, 'red'))
         # self.fill_schedule(self.event_key)
         # self.fill_team_data(self.event_key)
         # print(self.get_team_metrics_from_event(self.event_key))
-        # self.fill_team_data(self.event_key)
-        print(self.get_predictions_from_event(self.event_key))
+        # print(self.get_predictions_from_event(self.event_key))
+        self.format_cells_in_schedule()
 
 
 if __name__ == '__main__':
