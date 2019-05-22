@@ -10,11 +10,14 @@ from oauth2client.service_account import ServiceAccountCredentials
 class Spreadsheet:
 
     # comment out all but one of these depending on which spreadsheet being used
-    # URL = 'https://docs.google.com/spreadsheets/d/1WhExw_ReHnyPQYXl0p-kT6jYXpZW5w8-cq2ffK7niOs' # 'Deep Space Scouting Sheet Machine'
-    # URL = 'https://docs.google.om/spreadsheets/d/1lOTML4TgNqv5OKUJU32keWu62__T9cFT3IL52kmPbKk' # 'Bethesda Week 2 Scouting Sheet Machine' 
-    # URL = 'https://docs.google.com/spreadsheets/d/1C8hjCqMZmacyUe3SlRgW4o4HGqTRFozviK4WZ6Mu4yc' # 'Week 0 Scouting Sheet Machine'
-    # URL = 'https://docs.google.com/spreadsheets/d/1uYb9n_2IaGSRvOPZcuE59eUQjinaTSIN1SKqTQ6z2lQ' # 'Dickinson Center Week 0 Scouting Sheet Machine'
-    URL = 'https://docs.google.com/spreadsheets/d/1_8tFjgxjGVA0__1BLkMV-ookfPLrnGDE8gZj6pQc1_k' # 'Centurion-KnightKrawler Week 0 Scouting Sheet Machine'
+    # URL = 'https://docs.google.com/spreadsheets/d/1WhExw_ReHnyPQYXl0p-kT6jYXpZW5w8-cq2ffK7niOs' # Sample Deep Space Scouting Sheet Machine
+    # URL = 'https://docs.google.om/spreadsheets/d/1lOTML4TgNqv5OKUJU32keWu62__T9cFT3IL52kmPbKk' # Bethesda Week 2 Scouting Sheet Machine
+    # URL = 'https://docs.google.com/spreadsheets/d/1C8hjCqMZmacyUe3SlRgW4o4HGqTRFozviK4WZ6Mu4yc' # Week 0 Scouting Sheet Machine
+    # URL = 'https://docs.google.com/spreadsheets/d/1uYb9n_2IaGSRvOPZcuE59eUQjinaTSIN1SKqTQ6z2lQ' # Dickinson Center Week 0 Scouting Sheet Machine
+    # URL = 'https://docs.google.com/spreadsheets/d/1_8tFjgxjGVA0__1BLkMV-ookfPLrnGDE8gZj6pQc1_k' # Centurion-KnightKrawler Week 0 Scouting Sheet Machine
+    # URL = 'https://docs.google.com/spreadsheets/d/1Ftzcn5u5axYUkob1MXI8wV1KAD-8qjGkywqQjP4_AMo' # Haymarket Week 1 Scouting Sheet Machine
+    # URL = 'https://docs.google.com/spreadsheets/d/1fRm4nZIT457zIpW5cyZrIvR0gSGt6oEcphVYiaH6eK8' # Owings Mills Week 3 Scouting Sheet Machine
+    URL = 'https://docs.google.com/spreadsheets/d/1y8xtKJftg1mDbhfcmISWkyi4MgmSauveD9BY2bPNUCo/edit#gid=168604214' # CHCMP Scouting Sheet Machine
 
     # google sheets  setup
     scope = ['https://spreadsheets.google.com/feeds']
@@ -206,16 +209,16 @@ class Spreadsheet:
 
 
     def main(self):
-        # self.fill_teams(self.teams_worksheet, self.event_key)
-        # self.create_team_sheets()
+        self.fill_teams(self.teams_worksheet, self.event_key)
+        self.create_team_sheets()
         # self.delete_team_sheets()
         # print(self.get_sample_sheet())
-        # self.copy_sheet(self.get_sample_sheet(), self.sheet.worksheet('1153'), 1153) # testing on single sheet
+        # self.copy_sheet(self.get_sample_sheet(), self.sheet.worksheet('1086'), 1086) # testing on single sheet
         # print(len(self.get_sample_sheet()))
-        # self.copy_sample_to_team_sheets()
+        self.copy_sample_to_team_sheets()
         # print(self.get_color_schedule(self.event_key, 'red'))
-        # self.fill_schedule(self.event_key)
-        # self.fill_team_data(self.event_key)
+        self.fill_schedule(self.event_key)
+        self.fill_team_data(self.event_key)
         # print(self.get_team_metrics_from_event(self.event_key))
         # print(self.get_predictions_from_event(self.event_key))
         self.format_cells_in_schedule()
